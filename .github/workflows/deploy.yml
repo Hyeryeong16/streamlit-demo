@@ -1,0 +1,33 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Streamlit 배포
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streamlit-deploy
+  cancel-in-progress: false
+  
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 문법 검사
+        run: python3 -m py_compile app.py
+
+      - name: WSL에 배포
+        run: |
+          mkdir -p "$HOME/streamlit-demo"
+          cp app.py "$HOME/streamlit-demo/app.py.tmp"
+          mv "$HOME/streamlit-demo/app.py.tmp" "$HOME/streamlit-demo/app.py"
